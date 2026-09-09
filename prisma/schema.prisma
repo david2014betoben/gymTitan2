@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  ADMINISTRACION
+  RECEPCION
+  ENTRENADOR
+}
+
+enum EstadoMembresia {
+  ACTIVA
+  SUSPENDIDA
+}
+
+enum EstadoSesion {
+  PROGRAMADA
+  ASISTIO
+  FALTO
+}
+
+model Usuario {
+  id        Int    @id @default(autoincrement())
+  nombre    String
+  apellido  String
+  email     String @unique
+  passwordHash  String
+  rol       Rol
+  estado       Boolean  @default(true)
+  creadoEn DateTime @default(now()) @map("creado_en")
+
+  sesionesEntrenamiento SesionEntrenamiento[] @relation(name: "EntrenadorSesiones")
+
+  @@map("usuarios")
+}
+
+model Plan {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  descripcion  String?
+  precioMes    Decimal  @map("precio_mes")  @db.Decimal(10,2)
+
+
+  membresias Membresia[]
+
+  @@map("planes")
+}
+
+model Socio {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  apellido        String
+  ci              String   @unique
+  telefono        String?
+  email           String?  @unique
+  fechaNacimiento DateTime?
+
+  membresias            Membresia[]
+  sesionesEntrenamiento SesionEntrenamiento[]
+
+  @@map("socios")
+}
+
+model Membresia {
+  id           Int      @id @default(autoincrement())
+  socioId      Int
+  planId       Int
+  fechaInicio  DateTime
+  fechaFin     DateTime
+  precioPagado Decimal  @db.Decimal(10, 2)
+  estado       EstadoMembresia @default(ACTIVA)
+
+  socio Socio @relation(fields: [socioId], references: [id])
+  plan  Plan  @relation(fields: [planId], references: [id])
+
+  @@index([socioId])
+  @@index([planId])
+  @@index([estado, fechaFin])
+  @@map("membresias")
+}
+
+model SesionEntrenamiento {
+  id           Int           @id @default(autoincrement())
+  socioId      Int           @map("socio_id")
+  entrenadorId Int           @map("entrenador_id")
+  fechaHora    DateTime      @map("fecha_hora")
+  estado       EstadoSesion @default(PROGRAMADA)
+
+  socio Socio @relation(fields: [socioId], references: [id], onDelete: Cascade)
+  entrenador Usuario @relation("EntrenadorSesiones", fields: [entrenadorId], references: [id])
+
+  @@unique([entrenadorId, fechaHora])
+  @@index([estado, fechaHora])
+  @@index([fechaHora])
+  @@map("sesiones_entrenamiento")
+}
