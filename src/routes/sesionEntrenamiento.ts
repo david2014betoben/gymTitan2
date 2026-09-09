@@ -1,26 +1,50 @@
 import { Router } from "express";
-import { sesionEntrenamientoController } from "../controllers/sesionEntrenamiento.controller";
+import {
+  getAll,
+  getById,
+  create,
+  update,
+  getSesionesDelDia,
+  actualizarEstado,
+  contarSesionesCompletadas,
+} from "../controllers/sesionEntrenamiento.controller";
+import { verifyToken } from "../middlewares/auth.middleware";
+import { authorize } from "../middlewares/authorize.middleware";
 
 const router = Router();
 
-router.get("/", sesionEntrenamientoController.getAll);
+router.get("/", verifyToken, authorize("ENTRENADOR", "ADMINISTRACION"), getAll);
 
-router.get("/:id", sesionEntrenamientoController.getById);
+router.get(
+  "/:id",
+  verifyToken,
+  authorize("RECEPCION", "ADMINISTRACION"),
+  getById,
+);
 
-router.post("/", sesionEntrenamientoController.create);
+router.post("/", verifyToken, authorize("RECEPCION", "ADMINISTRACION"), create);
 
-router.put("/:id", sesionEntrenamientoController.update);
+router.put("/:id", verifyToken, authorize("ADMINISTRACION"), update);
 
 router.get(
   "/entrenador/:entrenadorId",
-  sesionEntrenamientoController.getSesionesDelDia,
+  verifyToken,
+  authorize("ADMINISTRACION", "ENTRENADOR"),
+  getSesionesDelDia,
 );
 
-router.patch("/:id/estado", sesionEntrenamientoController.actualizarEstado);
+router.patch(
+  "/:id/estado",
+  verifyToken,
+  authorize("ENTRENADOR", "ADMINISTRACION"),
+  actualizarEstado,
+);
 
 router.get(
   "/entrenador/:entrenadorId/completadas",
-  sesionEntrenamientoController.contarSesionesCompletadas,
+  verifyToken,
+  authorize("ADMINISTRACION"),
+  contarSesionesCompletadas,
 );
 
 export default router;

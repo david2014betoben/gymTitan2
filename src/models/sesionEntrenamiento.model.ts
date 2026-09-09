@@ -1,7 +1,6 @@
 import { prisma } from "../config/prisma";
 
 export const sesionEntrenamientoModel = {
-  // Todas las sesiones
   getAll: async () => {
     return await prisma.sesionEntrenamiento.findMany({
       include: {
@@ -14,7 +13,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // Una sesión por ID
   getById: async (id: number) => {
     return await prisma.sesionEntrenamiento.findUnique({
       where: {
@@ -27,7 +25,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // Agendar una sesión personalizada
   create: async (data: {
     socioId: number;
     entrenadorId: number;
@@ -46,7 +43,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // Actualizar datos de una sesión
   update: async (
     id: number,
     data: {
@@ -67,7 +63,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // Sesiones de un entrenador durante una jornada
   getSesionesDelDia: async (entrenadorId: number, inicio: Date, fin: Date) => {
     return await prisma.sesionEntrenamiento.findMany({
       where: {
@@ -86,7 +81,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // El entrenador registra asistencia o falta
   actualizarEstado: async (id: number, estado: "ASISTIO" | "FALTO") => {
     return await prisma.sesionEntrenamiento.update({
       where: {
@@ -102,7 +96,6 @@ export const sesionEntrenamientoModel = {
     });
   },
 
-  // Cantidad de sesiones completadas por entrenador
   contarSesionesCompletadas: async (entrenadorId: number) => {
     return await prisma.sesionEntrenamiento.count({
       where: {
