@@ -4,10 +4,11 @@ import { prisma } from "../config/prisma";
 
 export const getAll = async (req: Request, res: Response): Promise<void> => {
   /* 
-    #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite ver todas las sesiones"
-  */
+  #swagger.security = [{ "bearerAuth": [] }]
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Obtener todas las sesiones creadas"
+  #swagger.description = "Obtiene todas las sesiones creadas."
+*/
   try {
     const sesiones = await sesionEntrenamientoModel.getAll();
 
@@ -23,10 +24,11 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
 export const getById = async (req: Request, res: Response): Promise<void> => {
   /* 
-    #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite ver una sesion de un socio por el id de la sesion"
-  */
+  #swagger.security = [{ "bearerAuth": [] }]
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Obtener una sesión de entrenamiento"
+  #swagger.description = "Obtiene los detalles de una sesión de entrenamiento mediante su ID."
+*/
   try {
     const id = Number(req.params.id);
 
@@ -50,10 +52,11 @@ export const getById = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const create = async (req: Request, res: Response): Promise<void> => {
-  /* 
-    #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite crear sesiones de entrenamiento"
+  /*
+  #swagger.security = [{ "bearerAuth": [] }]
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Agendar una sesión de entrenamiento"
+  #swagger.description = "Permite agendar una sesión personalizada para un socio con un entrenador específico en una fecha y hora determinada."
   */
   try {
     const { socioId, entrenadorId, fechaHora } = req.body;
@@ -105,8 +108,17 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 export const update = async (req: Request, res: Response): Promise<void> => {
   /* 
     #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite actualizar sesiones de entrenamiento"
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Actualizar una sesión"
+  #swagger.description = "Actualiza los datos de una sesión de entrenamiento previamente registrada."
+
+  #swagger.parameters["id"] = {
+    in: "path",
+    required: true,
+    type: "integer",
+    description: "ID de la sesión de entrenamiento",
+    example: 1
+  }
   */
   try {
     const id = Number(req.params.id);
@@ -152,8 +164,18 @@ export const getSesionesDelDia = async (
 ): Promise<void> => {
   /* 
     #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite ver al entrenador sus sesiones del dia"
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Obtener mis sesiones del día"
+  #swagger.description = "Obtiene las sesiones de entrenamiento del entrenador autenticado correspondientes a una fecha determinada."
+
+  #swagger.parameters["fecha"] = {
+    in: "query",
+    required: true,
+    type: "string",
+    format: "date",
+    description: "Fecha de la jornada que se desea consultar",
+    example: "2026-09-10"
+  }
   */
   try {
     const entrenadorId = req.user!.id;
@@ -191,8 +213,37 @@ export const actualizarEstado = async (
 ): Promise<void> => {
   /* 
     #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite actualizar el estado de la sesion si asistio o falto"
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Registrar asistencia de una sesión"
+  #swagger.description = "Permite al entrenador registrar si el socio asistió o faltó a una sesión de entrenamiento."
+
+  #swagger.parameters["id"] = {
+    in: "path",
+    required: true,
+    type: "integer",
+    description: "ID de la sesión de entrenamiento",
+    example: 1
+  }
+
+  #swagger.requestBody = {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          required: ["estado"],
+          properties: {
+            estado: {
+              type: "string",
+              enum: ["ASISTIO", "FALTO"],
+              example: "ASISTIO",
+              description: "Estado de asistencia del socio"
+            }
+          }
+        }
+      }
+    }
+  }
   */
   try {
     const id = Number(req.params.id);
@@ -226,8 +277,17 @@ export const contarSesionesCompletadas = async (
 ): Promise<void> => {
   /* 
     #swagger.security = [{ "bearerAuth": [] }]
-    #swagger.tags = ["Sesiones de Entrenamiento"]
-    #swagger.description= "Permite ver el total de sesiones completadas"
+  #swagger.tags = ["Sesiones de Entrenamiento"]
+  #swagger.summary = "Contar sesiones completadas por entrenador"
+  #swagger.description = "Obtiene la cantidad de sesiones completadas por un entrenador para el cálculo de sus honorarios."
+
+  #swagger.parameters["entrenadorId"] = {
+    in: "path",
+    required: true,
+    type: "integer",
+    description: "ID del entrenador",
+    example: 3
+  }
   */
   try {
     const entrenadorId = Number(req.params.entrenadorId);
