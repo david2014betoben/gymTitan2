@@ -10,6 +10,11 @@ import {
 } from "../controllers/sesionEntrenamiento.controller";
 import { verifyToken } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/authorize.middleware";
+import { validate } from "../middlewares/validate.middlerware";
+import {
+  createSesionSchema,
+  UpdateSesionEstadoSchema,
+} from "../schemas/sesionEntrenamiento.schema";
 
 const router = Router();
 
@@ -22,7 +27,13 @@ router.get(
   getById,
 );
 
-router.post("/", verifyToken, authorize("RECEPCION", "ADMINISTRACION"), create);
+router.post(
+  "/",
+  verifyToken,
+  authorize("RECEPCION", "ADMINISTRACION"),
+  validate(createSesionSchema, "body"),
+  create,
+);
 
 router.put("/:id", verifyToken, authorize("ADMINISTRACION"), update);
 
@@ -37,6 +48,7 @@ router.patch(
   "/:id/estado",
   verifyToken,
   authorize("ENTRENADOR", "ADMINISTRACION"),
+  validate(UpdateSesionEstadoSchema, "body"),
   actualizarEstado,
 );
 
